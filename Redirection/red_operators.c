@@ -6,7 +6,7 @@
 /*   By: gkmon <gkmon@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/05 06:55:51 by gkmon             #+#    #+#             */
-/*   Updated: 2023/06/19 13:56:48 by gkmon            ###   ########.fr       */
+/*   Updated: 2023/08/11 23:39:41 by grobert          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,12 +104,21 @@ int	ft_here_doc(t_shell *shell, char *limiter)
 		write(1, "heredoc> ", 9);
 		temp = get_next_line(0);
 		if (!temp || (!ft_strncmp(temp, limiter, ft_strlen(limiter))
-				&& ft_strlen(temp) == ft_strlen(limiter) + 1))
-			break ;
+			&& ft_strlen(temp) == ft_strlen(limiter) + 1))
+			break;
+		if(g_shell_errno)
+			break;
 		write(file, temp, ft_strlen(temp));
 		free(temp);
 	}
 	close(file);
+	if (g_shell_errno == 130)
+	{
+		file = open(".here_doc", O_WRONLY | O_TRUNC);
+		if (file == -1)
+			ft_die(shell, 1, 12);
+		close(file);
+	}
 	if (!temp)
 		fd_printf(2, "\nWarning: here-document delimited by end-of-file\n");
 	ft_free((void **) &temp);
